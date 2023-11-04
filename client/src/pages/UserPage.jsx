@@ -1,7 +1,17 @@
 import React from "react";
+import UserHeader from "../components/UserHeader";
+import UserPost from "../components/UserPost";
 
 const UserPage = () => {
-  return <div>UserPage</div>;
+  return (
+    <>
+      <UserHeader />
+      <UserPost />
+      <UserPost />
+      <UserPost />
+      <UserPost />
+    </>
+  );
 };
 
 export default UserPage;
