@@ -9,6 +9,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import Actions from "../components/Actions";
+import Comment from "../components/Comment";
 
 const PostPage = () => {
   const [isLiked, setLiked] = useState(false);
@@ -62,6 +63,9 @@ const PostPage = () => {
         </Flex>
         <Button>Get</Button>
       </Flex>
+
+      <Divider my={4} />
+      <Comment />
     </>
   );
 };
