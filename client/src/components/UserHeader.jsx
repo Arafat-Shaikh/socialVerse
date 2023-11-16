@@ -1,6 +1,7 @@
 import {
   Avatar,
   Box,
+  Button,
   Flex,
   Link,
   Menu,
@@ -12,27 +13,84 @@ import {
   VStack,
   useToast,
 } from "@chakra-ui/react";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { BsInstagram } from "react-icons/bs";
 import { CgMoreO } from "react-icons/cg";
+import { useRecoilState } from "recoil";
+import userAtom from "../atoms/userAtom";
+import { Link as RouterLink, useParams } from "react-router-dom";
 
-const UserHeader = () => {
+const UserHeader = ({ user }) => {
   const toast = useToast();
   const toastIdRef = useRef();
+  const [loggedInUser, setLoggedInUser] = useRecoilState(userAtom);
+  const [follow, setFollow] = useState(
+    loggedInUser.following.includes(user.id)
+  );
+
   function copyUrl() {
     const url = window.location.href;
     navigator.clipboard.writeText(url);
     toastIdRef.current = toast({ description: "Copied" });
   }
+
+  async function followUser() {
+    try {
+      console.log(user.id);
+      const res = await fetch("api/user/follow/" + user.id, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+      });
+      const data = await res.json();
+
+      if (data.error) {
+        toast({
+          status: "error",
+          description: "can't follow",
+          isClosable: true,
+        });
+      }
+
+      console.log(follow);
+      if (follow) {
+        const index = loggedInUser.following.indexOf(user.id);
+        loggedInUser.following.splice(index, 1);
+
+        const index1 = user.followers.indexOf(loggedInUser._id);
+        user.followers.splice(index1, 1);
+
+        console.log(loggedInUser.following);
+        console.log(user);
+      }
+      // else {
+      //   loggedInUser.following.push(user.id);
+      //   user.followers.push(loggedInUser._id);
+      //   console.log(loggedInUser);
+      //   console.log(user);
+      // }
+
+      toast({
+        status: "success",
+        description: data.message,
+        isClosable: true,
+      });
+      console.log(data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  console.log(user);
+
   return (
     <VStack gap={4} alignItems={"start"}>
       <Flex justifyContent={"space-between"} w={"full"}>
         <Box>
           <Text fontSize={"2xl"} fontWeight={"bold"}>
-            Mark Zuck
+            {user.name}
           </Text>
           <Flex gap={2} alignItems={"center"}>
-            <Text fontSize={"sm"}>markzuckerburg</Text>
+            <Text fontSize={"sm"}>{user.username}</Text>
             <Text
               fontSize={"xs"}
               bg={"gray.dark"}
@@ -47,7 +105,9 @@ const UserHeader = () => {
         <Box>
           <Avatar
             name="Mark"
-            src="/zuck-avatar.png"
+            src={
+              user.profilePic ? user.profilePic : "https://bit.ly/broken-link"
+            }
             size={{
               base: "md",
               md: "xl",
@@ -55,7 +115,20 @@ const UserHeader = () => {
           />
         </Box>
       </Flex>
-      <Text>co-founder executive chariman of meta-platforms</Text>
+      <Text>{user.bio}</Text>
+
+      {loggedInUser?.id === user?.id && (
+        <Link as={RouterLink} to="/update">
+          <Button size={"sm"}>Update</Button>
+        </Link>
+      )}
+
+      {loggedInUser?.id !== user?.id && (
+        <Button onClick={() => followUser()}>
+          {loggedInUser.following.includes(user.id) ? "Unfollow" : "Follow"}
+        </Button>
+      )}
+
       <Flex justifyContent={"space-between"} w={"full"}>
         <Flex gap={2} alignItems={"center"}>
           <Text>3.2k followers</Text>
