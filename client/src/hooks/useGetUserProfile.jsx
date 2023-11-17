@@ -18,10 +18,10 @@ const useGetUserProfile = () => {
           status: "error",
           isClosable: true,
         });
+      } else {
+        console.log(data);
+        setUser(data);
       }
-
-      console.log(data);
-      setUser(data);
     } catch (error) {
       console.log(error);
     }
@@ -29,7 +29,7 @@ const useGetUserProfile = () => {
 
   useEffect(() => {
     getUserProfile();
-  }, []);
+  }, [username]);
   return { user };
 };
 

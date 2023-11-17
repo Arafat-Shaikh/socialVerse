@@ -24,9 +24,10 @@ const UserHeader = ({ user }) => {
   const toast = useToast();
   const toastIdRef = useRef();
   const [loggedInUser, setLoggedInUser] = useRecoilState(userAtom);
-  const [follow, setFollow] = useState(
-    loggedInUser.following.includes(user.id)
-  );
+  const userToFollow =
+    user?.followers && user.followers.includes(loggedInUser._id);
+  const [follow, setFollow] = useState(userToFollow);
+  const [loading, setLoading] = useState(false);
 
   function copyUrl() {
     const url = window.location.href;
@@ -35,8 +36,11 @@ const UserHeader = ({ user }) => {
   }
 
   async function followUser() {
+    if (loading) return;
+
+    setLoading(true);
+
     try {
-      console.log(user.id);
       const res = await fetch("api/user/follow/" + user.id, {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -46,41 +50,32 @@ const UserHeader = ({ user }) => {
       if (data.error) {
         toast({
           status: "error",
-          description: "can't follow",
+          description: data.error,
           isClosable: true,
         });
       }
 
-      console.log(follow);
       if (follow) {
-        const index = loggedInUser.following.indexOf(user.id);
-        loggedInUser.following.splice(index, 1);
-
-        const index1 = user.followers.indexOf(loggedInUser._id);
-        user.followers.splice(index1, 1);
-
-        console.log(loggedInUser.following);
+        user.followers.pop();
+        console.log(user);
+      } else {
+        user.followers.push(loggedInUser._id);
         console.log(user);
       }
-      // else {
-      //   loggedInUser.following.push(user.id);
-      //   user.followers.push(loggedInUser._id);
-      //   console.log(loggedInUser);
-      //   console.log(user);
-      // }
+
+      setFollow(!follow);
 
       toast({
         status: "success",
         description: data.message,
         isClosable: true,
       });
-      console.log(data);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   }
-
-  console.log(user);
 
   return (
     <VStack gap={4} alignItems={"start"}>
@@ -104,7 +99,7 @@ const UserHeader = ({ user }) => {
         </Box>
         <Box>
           <Avatar
-            name="Mark"
+            name={user.username}
             src={
               user.profilePic ? user.profilePic : "https://bit.ly/broken-link"
             }
@@ -117,21 +112,21 @@ const UserHeader = ({ user }) => {
       </Flex>
       <Text>{user.bio}</Text>
 
-      {loggedInUser?.id === user?.id && (
+      {loggedInUser?._id === user?.id && (
         <Link as={RouterLink} to="/update">
           <Button size={"sm"}>Update</Button>
         </Link>
       )}
 
-      {loggedInUser?.id !== user?.id && (
-        <Button onClick={() => followUser()}>
-          {loggedInUser.following.includes(user.id) ? "Unfollow" : "Follow"}
+      {loggedInUser?._id !== user?.id && (
+        <Button onClick={() => followUser()} isLoading={loading}>
+          {userToFollow ? "Unfollow" : "Follow"}
         </Button>
       )}
 
       <Flex justifyContent={"space-between"} w={"full"}>
         <Flex gap={2} alignItems={"center"}>
-          <Text>3.2k followers</Text>
+          <Text>{user.followers.length} followers</Text>
           <Box w={1} h={1} bg={"gray.light"} borderRadius={"full"}></Box>
           <Link>instagram.com</Link>
         </Flex>

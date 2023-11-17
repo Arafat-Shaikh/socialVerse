@@ -38,6 +38,8 @@ const UserPage = () => {
     fetchUserPosts();
   }, [userPost]);
 
+  if (!user) return null;
+
   return (
     <>
       {user && <UserHeader user={user} />}
