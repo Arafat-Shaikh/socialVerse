@@ -6,6 +6,7 @@ const useGetUserProfile = () => {
   const [user, setUser] = useState(null);
   const { username } = useParams();
   const toast = useToast();
+  const [loading, setLoading] = useState(true);
 
   async function getUserProfile() {
     try {
@@ -25,12 +26,13 @@ const useGetUserProfile = () => {
     } catch (error) {
       console.log(error);
     }
+    setLoading(false);
   }
 
   useEffect(() => {
     getUserProfile();
   }, [username]);
-  return { user };
+  return { user, loading };
 };
 
 export default useGetUserProfile;

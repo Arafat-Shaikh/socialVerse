@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import UserHeader from "../components/UserHeader";
 import UserPost from "../components/UserPost";
-import { useToast } from "@chakra-ui/react";
+import { Spinner, useToast } from "@chakra-ui/react";
 import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { useParams } from "react-router-dom";
@@ -11,7 +11,7 @@ const UserPage = () => {
   const toast = useToast();
   const [userPost, setUserPost] = useRecoilState(userAtom);
   const { username } = useParams();
-  const { user } = useGetUserProfile();
+  const { user,loading } = useGetUserProfile();
 
   console.log(user);
 
@@ -39,6 +39,10 @@ const UserPage = () => {
   }, [userPost]);
 
   if (!user) return null;
+
+  if (!loading && !user) return <p>User not found</p>;
+
+  if (loading) return <Spinner size={24} />;
 
   return (
     <>

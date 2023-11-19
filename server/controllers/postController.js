@@ -1,9 +1,13 @@
 const { Post } = require("../models/posts");
 const { User } = require("../models/users");
+const cloudinary = require("cloudinary").v2;
 
 exports.createPost = async (req, res) => {
   try {
     const { postedBy, text } = req.body;
+    let { img } = req.body;
+    let newPost;
+
     if (!postedBy || !text) {
       return res
         .status(500)
@@ -15,7 +19,14 @@ exports.createPost = async (req, res) => {
       return res.status(500).json({ error: "you are not authorized to post" });
     }
 
-    const newPost = new Post({ postedBy: postedBy, text: text });
+    if (img) {
+      const imgInfo = await cloudinary.uploader.upload(img);
+      img = imgInfo.secure_url;
+      newPost = new Post({ postedBy: postedBy, text: text, img: img });
+    } else {
+      newPost = new Post({ postedBy: postedBy, text: text });
+    }
+
     await newPost.save();
 
     res.status(201).json({ message: "post created successfully." });

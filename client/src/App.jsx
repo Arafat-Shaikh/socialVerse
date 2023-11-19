@@ -8,6 +8,7 @@ import AuthPage from "./pages/AuthPage";
 import { useRecoilState } from "recoil";
 import userAtom from "./atoms/userAtom";
 import UpdateUserPage from "./pages/UpdateUserPage";
+import CreatePost from "./components/CreatePost";
 
 function App() {
   const [user, setUser] = useRecoilState(userAtom);
@@ -30,6 +31,7 @@ function App() {
         <Route path="/:username" element={<UserPage />}></Route>
         <Route path="/:username/post/:pid" element={<PostPage />}></Route>
       </Routes>
+      {user && <CreatePost />}
     </Container>
   );
 }
