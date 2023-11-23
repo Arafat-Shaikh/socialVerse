@@ -5,6 +5,7 @@ import userAtom from "../atoms/userAtom";
 import { AiFillHome } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import { RxAvatar } from "react-icons/rx";
+import Logout from "./Logout";
 
 const Header = () => {
   const { colorMode, toggleColorMode } = useColorMode();
@@ -30,6 +31,7 @@ const Header = () => {
           <RxAvatar size={24} />
         </Link>
       )}
+      {user && <Logout />}
     </Flex>
   );
 };

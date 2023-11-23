@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const { User } = require("../models/users");
 const { generateTokenAndCookie } = require("../services/service");
 const bcrypt = require("bcrypt");
@@ -55,9 +56,11 @@ exports.loginUser = async (req, res) => {
     if (isUser) {
       generateTokenAndCookie(user.id, res);
 
-      const doc = user.toObject();
-      delete doc.password;
-      res.status(201).json(doc);
+      // const doc = user.toObject();
+      // delete doc.password;
+      user.password = null;
+      console.log(user);
+      res.status(201).json(user);
     } else {
       res.status(401).json({ error: "User not found" });
     }
@@ -114,6 +117,7 @@ exports.updateProfile = async (req, res) => {
     await user.save();
 
     user.password = null;
+    console.log(user);
     res.status(200).json(user);
   } catch (err) {
     console.log("update profile " + err);
@@ -156,13 +160,24 @@ exports.followAndUnFollow = async (req, res) => {
 
 exports.getUserProfile = async (req, res) => {
   try {
-    const username = req.params.id;
+    const identifier = req.params.id;
+    console.log(identifier);
+    console.log("this is identifier  " + typeof identifier);
+    let query;
 
-    console.log(username);
+    if (mongoose.Types.ObjectId.isValid(identifier)) {
+      query = { _id: identifier };
+      console.log("object id");
+    } else {
+      console.log("not object id");
+      query = { username: identifier };
+    }
 
-    const user = await User.findOne({ username: username })
+    const user = await User.findOne(query)
       .select("-password")
       .select("-updatedAt");
+
+    console.log("here is user  " + user);
 
     if (!user) {
       return res.status(401).json({ error: "User not found" });

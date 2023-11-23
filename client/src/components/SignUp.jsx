@@ -33,9 +33,15 @@ export default function SignUp() {
   });
   const toast = useToast();
   const setUser = useSetRecoilState(userAtom);
+  const [loading, setLoading] = useState(false);
 
   const handleSignUp = async () => {
     console.log(inputs);
+
+    if (loading) return;
+
+    setLoading(true);
+
     try {
       const res = await fetch("/api/user/signup", {
         method: "POST",
@@ -51,11 +57,14 @@ export default function SignUp() {
           isClosable: true,
         });
       } else {
+        console.log(data);
         localStorage.setItem("user-d", JSON.stringify(data));
         setUser(data);
       }
     } catch (err) {
       console.log(err);
+    } finally {
+      setLoading(false);
     }
   };
 

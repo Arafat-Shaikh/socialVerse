@@ -30,14 +30,19 @@ export default function Login() {
   });
   const toast = useToast();
   const setUser = useSetRecoilState(userAtom);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    if (loading) return;
+
+    setLoading(true);
     try {
       const res = await fetch("/api/user/login", {
         method: "POST",
         body: JSON.stringify(inputs),
         headers: { "content-type": "application/json" },
       });
+
       const data = await res.json();
       if (data.error) {
         toast({
@@ -46,11 +51,14 @@ export default function Login() {
           isClosable: true,
         });
       } else {
+        console.log(data);
         localStorage.setItem("user-d", JSON.stringify(data));
         setUser(data);
       }
     } catch (error) {
       console.log(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -100,7 +108,6 @@ export default function Login() {
             </FormControl>
             <Stack spacing={10} pt={2}>
               <Button
-                loadingText="Submitting"
                 size="lg"
                 bg={"gray.600"}
                 color={"white"}
@@ -108,6 +115,7 @@ export default function Login() {
                   bg: "gray.700",
                 }}
                 onClick={handleLogin}
+                isLoading={loading}
               >
                 Login
               </Button>

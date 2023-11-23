@@ -24,10 +24,12 @@ const UserHeader = ({ user }) => {
   const toast = useToast();
   const toastIdRef = useRef();
   const [loggedInUser, setLoggedInUser] = useRecoilState(userAtom);
-  const userToFollow =
-    user?.followers && user.followers.includes(loggedInUser._id);
-  const [follow, setFollow] = useState(userToFollow);
+  const [follow, setFollow] = useState(
+    user?.followers && user.followers.includes(loggedInUser.id)
+  );
   const [loading, setLoading] = useState(false);
+
+  console.log(follow);
 
   function copyUrl() {
     const url = window.location.href;
@@ -57,10 +59,8 @@ const UserHeader = ({ user }) => {
 
       if (follow) {
         user.followers.pop();
-        console.log(user);
       } else {
         user.followers.push(loggedInUser._id);
-        console.log(user);
       }
 
       setFollow(!follow);
@@ -112,15 +112,15 @@ const UserHeader = ({ user }) => {
       </Flex>
       <Text>{user.bio}</Text>
 
-      {loggedInUser?._id === user?.id && (
+      {loggedInUser?.id === user?.id && (
         <Link as={RouterLink} to="/update">
-          <Button size={"sm"}>Update</Button>
+          <Button size={"sm"}>Update Profile</Button>
         </Link>
       )}
 
-      {loggedInUser?._id !== user?.id && (
+      {loggedInUser?.id !== user?.id && (
         <Button onClick={() => followUser()} isLoading={loading}>
-          {userToFollow ? "Unfollow" : "Follow"}
+          {follow ? "Unfollow" : "Follow"}
         </Button>
       )}
 

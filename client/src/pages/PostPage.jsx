@@ -10,9 +10,11 @@ import {
 import React, { useState } from "react";
 import Actions from "../components/Actions";
 import Comment from "../components/Comment";
+import { useParams } from "react-router-dom";
 
 const PostPage = () => {
   const [isLiked, setLiked] = useState(false);
+  const { username, pid } = useParams();
   return (
     <>
       <Flex w={"full"} justifyContent={"space-between"} alignItems={"center"}>

@@ -1,20 +1,46 @@
-import { Button, Flex } from "@chakra-ui/react";
-import React from "react";
+import { Button, Flex, Spinner, useToast } from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
-import Logout from "../components/Logout";
+import UserPost from "../components/UserPost";
 
 const HomePage = () => {
   const [user, setUser] = useRecoilState(userAtom);
-  return (
-    <Link to={"/hey"} replace={true}>
+  const [loading, setLoading] = useState(false);
+  const [posts, setPosts] = useState("");
+
+  async function getFollowedUserPosts() {
+    try {
+      const res = await fetch("/api/post/users/posts");
+      const data = await res.json();
+
+      if (data.error) {
+        console.log(data.error);
+      } else {
+        console.log(data);
+        setPosts(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useEffect(() => {
+    getFollowedUserPosts();
+  }, [user]);
+
+  console.log(posts);
+
+  if (!posts.length) {
+    return (
       <Flex justifyContent={"center"}>
-        <Button>see posts</Button>
+        <h1>Follow to see posts</h1>
       </Flex>
-      {user && <Logout />}
-    </Link>
-  );
+    );
+  }
+
+  return <>{posts && posts.map((post) => <UserPost post={post} />)}</>;
 };
 
 export default HomePage;

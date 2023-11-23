@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from "react";
 import UserHeader from "../components/UserHeader";
 import UserPost from "../components/UserPost";
-import { Spinner, useToast } from "@chakra-ui/react";
+import { Flex, Spinner, useToast } from "@chakra-ui/react";
 import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
-import { useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import useGetUserProfile from "../hooks/useGetUserProfile";
 
 const UserPage = () => {
   const toast = useToast();
-  const [userPost, setUserPost] = useRecoilState(userAtom);
+  // const [userPost, setUserPost] = useRecoilState(userAtom);
   const { username } = useParams();
-  const { user,loading } = useGetUserProfile();
+  const { user, loading } = useGetUserProfile();
+  const [userPosts, setUserPosts] = useState("");
+  const [loggedInUser, setLoggedInUser] = useRecoilState(userAtom);
 
+  console.log(loading);
   console.log(user);
 
   async function fetchUserPosts() {
@@ -29,28 +32,46 @@ const UserPage = () => {
         });
       } else {
         console.log(data);
+        setUserPosts(data);
       }
     } catch (error) {
       console.log(error);
     }
   }
+
   useEffect(() => {
     fetchUserPosts();
-  }, [userPost]);
+  }, [user]);
+
+  if (loading && !user) {
+    return (
+      <Flex justifyContent={"center"}>
+        <Spinner size={"xl"} />
+      </Flex>
+    );
+  }
 
   if (!user) return null;
 
-  if (!loading && !user) return <p>User not found</p>;
+  if (user) {
+    <Flex justifyContent={"center"}>
+      <Spinner size={"xl"} />
+    </Flex>;
+  }
 
-  if (loading) return <Spinner size={24} />;
+  if (!loggedInUser) {
+    return <Navigate to={"/auth"} replace={true}></Navigate>;
+  }
 
   return (
     <>
       {user && <UserHeader user={user} />}
-      <UserPost />
-      <UserPost />
-      <UserPost />
-      <UserPost />
+      {userPosts && userPosts.map((userPost) => <UserPost post={userPost} />)}
+      {!userPosts.length && (
+        <Flex justifyContent={"center"} mt={2}>
+          <h1>No post yet</h1>
+        </Flex>
+      )}
     </>
   );
 };
