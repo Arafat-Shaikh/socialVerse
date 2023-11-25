@@ -27,9 +27,9 @@ exports.createPost = async (req, res) => {
       newPost = new Post({ postedBy: postedBy, text: text });
     }
 
-    await newPost.save();
+    const doc = await newPost.save();
 
-    res.status(201).json({ message: "post created successfully." });
+    res.status(201).json(doc);
   } catch (err) {
     res.status(500).json({ error: err.message });
     console.log("Error in create post " + err.message);
@@ -72,7 +72,7 @@ exports.deletePost = async (req, res) => {
 exports.likeAndUnlikePost = async (req, res) => {
   try {
     const { id } = req.params;
-    if (req.user.id) {
+    if (!req.user.id) {
       return res
         .status(500)
         .json({ error: "you are not authorized to like or unlike post" });
@@ -83,12 +83,14 @@ exports.likeAndUnlikePost = async (req, res) => {
       return res.status(401).json({ error: "post not found" });
     }
 
+    console.log(req.user.id);
+
     if (post.likes.includes(req.user.id)) {
-      await User.findByIdAndUpdate(id, { $pull: { likes: req.user.id } });
-      res.status(201).json({ message: "user unFollowed successfully." });
+      await Post.findByIdAndUpdate(id, { $pull: { likes: req.user.id } });
+      res.status(201).json({ message: "Post liked" });
     } else {
-      await User.findByIdAndUpdate(id, { $push: { likes: req.user.id } });
-      res.status(201).json({ message: "user followed successfully" });
+      await Post.findByIdAndUpdate(id, { $push: { likes: req.user.id } });
+      res.status(201).json({ message: "Post unliked" });
     }
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -115,7 +117,7 @@ exports.replyToPost = async (req, res) => {
         userProfilePic: userProfilePic,
       });
       const updatedPost = await Post.findByIdAndUpdate(id, post, { new: true });
-      res.status(201).json({ message: "reply added successfully" });
+      res.status(201).json(updatedPost);
     }
   } catch (err) {
     res.status(500).json({ error: err.message });

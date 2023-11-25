@@ -15,6 +15,10 @@ import { useParams } from "react-router-dom";
 const PostPage = () => {
   const [isLiked, setLiked] = useState(false);
   const { username, pid } = useParams();
+
+  console.log(username);
+  console.log(pid);
+
   return (
     <>
       <Flex w={"full"} justifyContent={"space-between"} alignItems={"center"}>

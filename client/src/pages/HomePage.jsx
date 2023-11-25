@@ -4,11 +4,12 @@ import { Link } from "react-router-dom";
 import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import UserPost from "../components/UserPost";
+import postsAtom from "../atoms/postsAtom";
 
 const HomePage = () => {
   const [user, setUser] = useRecoilState(userAtom);
   const [loading, setLoading] = useState(false);
-  const [posts, setPosts] = useState("");
+  const [posts, setPosts] = useRecoilState(postsAtom);
 
   async function getFollowedUserPosts() {
     try {
@@ -40,7 +41,12 @@ const HomePage = () => {
     );
   }
 
-  return <>{posts && posts.map((post) => <UserPost post={post} />)}</>;
+  return (
+    <>
+      {posts &&
+        posts.map((post) => <UserPost post={post} setPosts={setPosts} />)}
+    </>
+  );
 };
 
 export default HomePage;

@@ -1,12 +1,25 @@
-import { Avatar, Box, Flex, Image, Text } from "@chakra-ui/react";
+import { Avatar, Box, Flex, Image, Text, useToast } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { BsThreeDots } from "react-icons/bs";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Actions from "./Actions";
+import { formatDistanceToNow } from "date-fns";
+import { DeleteIcon } from "@chakra-ui/icons";
+import useHandleDeletePost from "../hooks/useHandleDeletePost";
 
-const UserPost = ({ post }) => {
+const UserPost = ({ post, setPosts }) => {
   const [isLiked, setLiked] = useState(false);
   const [user, setUser] = useState("");
+  const navigate = useNavigate();
+  const toast = useToast();
+  const { loading, handleDeletePost, isDeleted } = useHandleDeletePost();
+  let formattedDate = formatDistanceToNow(new Date(post.createdAt))
+    .split(" ")
+    .filter((word) => word !== "about");
+
+  formattedDate = formattedDate[0] + formattedDate[1][0];
+
+  console.log(formattedDate);
 
   useEffect(() => {
     async function getUserProfile() {
@@ -19,6 +32,7 @@ const UserPost = ({ post }) => {
           console.log(data.error);
         } else {
           console.log(data);
+
           setUser(data);
         }
       } catch (error) {
@@ -37,52 +51,73 @@ const UserPost = ({ post }) => {
   }
 
   return (
-    <Link to={"/username/post/1"}>
+    <Link to={`/${user.username}/post/${post.id}`}>
       <Flex gap={3} mb={4} py={5}>
         <Flex flexDirection={"column"} alignItems={"center"}>
-          <Avatar size={"md"} name={user.username} src={user.profilePic} />
+          <Avatar
+            size={"md"}
+            name={user.username}
+            src={user.profilePic}
+            onClick={(e) => {
+              e.preventDefault();
+              navigate(`/${user.username}`);
+            }}
+          />
           <Box w={0.5} h={"full"} bg={"gray.light"} my={2}></Box>
           <Box position={"relative"} w={"full"}>
-            <Avatar
-              size={"xs"}
-              name="john doe"
-              src="https://bit.ly/tioluwani-kolawole"
-              position={"absolute"}
-              top={"0px"}
-              left={"15px"}
-              padding={"2px"}
-            />
-            <Avatar
-              size={"xs"}
-              name="john doe"
-              src="https://bit.ly/tioluwani-kolawole"
-              position={"absolute"}
-              bottom={"0px"}
-              right={"-5px"}
-              padding={"2px"}
-            />
-            <Avatar
-              size={"xs"}
-              name="john doe"
-              src="https://bit.ly/tioluwani-kolawole"
-              position={"absolute"}
-              bottom={"0px"}
-              left={"4px"}
-              padding={"2px"}
-            />
+            {post.replies[0] && (
+              <Avatar
+                size={"xs"}
+                name="john doe"
+                src={post.replies[0].userProfilePic}
+                position={"absolute"}
+                top={"0px"}
+                left={"15px"}
+                padding={"2px"}
+              />
+            )}
+            {post.replies[1] && (
+              <Avatar
+                size={"xs"}
+                name="john doe"
+                src={post.replies[1].userProfilePic}
+                position={"absolute"}
+                bottom={"0px"}
+                right={"-5px"}
+                padding={"2px"}
+              />
+            )}
+            {post.replies[2] && (
+              <Avatar
+                size={"xs"}
+                name="john doe"
+                src={post.replies[2].userProfilePic}
+                position={"absolute"}
+                bottom={"0px"}
+                left={"4px"}
+                padding={"2px"}
+              />
+            )}
           </Box>
         </Flex>
         <Flex flex={1} flexDirection={"column"} gap={2}>
           <Flex justifyContent={"space-between"}>
             <Flex alignItems={"center"}>
-              <Text fontSize={"sm"} fontWeight={"bold"}>
+              <Text
+                fontSize={"sm"}
+                fontWeight={"bold"}
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate(`/${user.username}`);
+                }}
+              >
                 {user.name}
               </Text>
               <Image src="/verified.png" w={4} h={4} ml={1} />
             </Flex>
             <Flex alignItems={"center"} gap={4}>
-              <Text fontStyle={"sm"}>1d</Text>
-              <BsThreeDots />
+              <Text fontStyle={"sm"}>{formattedDate}</Text>
+              <DeleteIcon onClick={() => handleDeletePost(post.id)} />
             </Flex>
           </Flex>
           <Text>{post.text}</Text>
@@ -98,7 +133,7 @@ const UserPost = ({ post }) => {
           )}
 
           <Flex gap={3} my={1}>
-            <Actions isLiked={isLiked} setLiked={setLiked} />
+            <Actions post={post} setPosts={setPosts} />
           </Flex>
 
           <Flex alignItems={"center"} gap={2}>

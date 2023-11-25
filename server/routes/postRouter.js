@@ -14,8 +14,8 @@ const router = express.Router();
 router
   .post("/create", authRoute, createPost)
   .get("/get/:id", authRoute, getPost)
-  .post("/like/:id", authRoute, likeAndUnlikePost)
-  .post("/reply/:id", authRoute, replyToPost)
+  .patch("/like/:id", authRoute, likeAndUnlikePost)
+  .put("/reply/:id", authRoute, replyToPost)
   .delete("/delete/:id", authRoute, deletePost)
   .get("/users/posts", authRoute, getFollowedUsersPost)
   .get("/user/:id", authRoute, getUserPosts);

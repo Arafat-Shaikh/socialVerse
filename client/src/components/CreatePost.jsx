@@ -24,6 +24,7 @@ import { BsFillImageFill } from "react-icons/bs";
 import useHandleImg from "../hooks/useHandleImg";
 import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
+import postsAtom from "../atoms/postsAtom";
 
 const CreatePost = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -35,6 +36,8 @@ const CreatePost = () => {
   const [user, setUser] = useRecoilState(userAtom);
   const toast = useToast();
   const [loading, setLoading] = useState(false);
+  const [posts, setPosts] = useRecoilState(postsAtom);
+
   console.log(user);
 
   function handlePostText(e) {
@@ -79,11 +82,12 @@ const CreatePost = () => {
           isClosable: true,
         });
       } else {
+        setPosts([data, ...posts]);
         setLoading(false);
         onClose();
         toast({
           status: "success",
-          description: data.message,
+          description: "Post created",
           isClosable: true,
         });
       }

@@ -56,8 +56,6 @@ exports.loginUser = async (req, res) => {
     if (isUser) {
       generateTokenAndCookie(user.id, res);
 
-      // const doc = user.toObject();
-      // delete doc.password;
       user.password = null;
       console.log(user);
       res.status(201).json(user);
