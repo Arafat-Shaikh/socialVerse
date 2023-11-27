@@ -1,17 +1,21 @@
-import { Avatar, Flex, Text } from "@chakra-ui/react";
+import { Avatar, Flex, Spinner, Text } from "@chakra-ui/react";
 import React from "react";
 
-const Comment = () => {
+const Comment = ({ rep }) => {
   return (
     <Flex gap={4} py={2} my={2} w={"full"}>
-      <Avatar src="/zuck-avatar.png" size={"sm"} />
+      <Avatar
+        src={rep.userProfilePic && rep.userProfilePic}
+        size={"sm"}
+        name={rep.username}
+      />
       <Flex gap={1} w={"full"} flexDirection={"column"}>
         <Flex justifyContent={"space-between"} alignItems={"center"} w={"full"}>
           <Text fontWeight={"bold"} fontSize={"sm"}>
-            Mark Zuck
+            {rep.username}
           </Text>
         </Flex>
-        <Text fontSize={"sm"}>this is very good.</Text>
+        <Text fontSize={"sm"}>{rep.text}</Text>
       </Flex>
     </Flex>
   );

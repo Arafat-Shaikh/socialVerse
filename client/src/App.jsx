@@ -1,5 +1,5 @@
 import { Button, Container, Flex, Spinner } from "@chakra-ui/react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import UserPage from "./pages/UserPage";
 import Header from "./components/Header";
 import PostPage from "./pages/PostPage";
@@ -14,9 +14,14 @@ import { useState } from "react";
 function App() {
   const [user, setUser] = useRecoilState(userAtom);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   return (
-    <Container maxW={"620px"}>
+    <Container
+      maxW={
+        location.pathname === "/" ? { base: "620px", md: "900px" } : "620px"
+      }
+    >
       <Header />
       <Routes>
         <Route

@@ -7,11 +7,12 @@ const useGetUserProfile = () => {
   const [user, setUser] = useState(null);
   const { username } = useParams();
   const toast = useToast();
+  console.log(username);
 
   useEffect(() => {
     async function getUserProfile() {
       try {
-        const res = await fetch("api/user/profile/" + username);
+        const res = await fetch("/api/user/profile/" + username);
         const data = await res.json();
 
         if (data.error) {
@@ -32,6 +33,7 @@ const useGetUserProfile = () => {
     }
     getUserProfile();
   }, [username]);
+
   return { user, loading };
 };
 

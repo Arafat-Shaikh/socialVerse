@@ -25,6 +25,7 @@ import useHandleImg from "../hooks/useHandleImg";
 import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import postsAtom from "../atoms/postsAtom";
+import { useParams } from "react-router-dom";
 
 const CreatePost = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -37,6 +38,7 @@ const CreatePost = () => {
   const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [posts, setPosts] = useRecoilState(postsAtom);
+  const { username } = useParams();
 
   console.log(user);
 
@@ -82,7 +84,10 @@ const CreatePost = () => {
           isClosable: true,
         });
       } else {
-        setPosts([data, ...posts]);
+        if (username === user.username) {
+          setPosts([data, ...posts]);
+        }
+
         setLoading(false);
         onClose();
         toast({

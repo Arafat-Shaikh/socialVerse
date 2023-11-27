@@ -1,12 +1,17 @@
 import { useToast } from "@chakra-ui/react";
-import React, { useState } from "react";
+import { useState } from "react";
+import postsAtom from "../atoms/postsAtom";
+import { useRecoilState } from "recoil";
 
 const useHandleDeletePost = () => {
   const toast = useToast();
   const [isDeleted, setIsDeleted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [posts, setPosts] = useRecoilState(postsAtom);
 
-  const handleDeletePost = async (postId) => {
+  const handleDeletePost = async (e, postId) => {
+    e.preventDefault();
+    if (!window.confirm("This can't be undone.")) return;
     if (loading) return;
 
     setLoading(true);
@@ -32,6 +37,10 @@ const useHandleDeletePost = () => {
           description: "Post deleted",
           isClosable: true,
         });
+
+        const updatedPosts = posts.filter((p) => p.id !== postId);
+        setPosts(updatedPosts);
+
         setIsDeleted(true);
       }
     } catch (error) {
@@ -39,9 +48,8 @@ const useHandleDeletePost = () => {
     } finally {
       setLoading(false);
     }
-
-    return { handleDeletePost, isDeleted, loading };
   };
+  return { handleDeletePost, isDeleted, loading };
 };
 
 export default useHandleDeletePost;

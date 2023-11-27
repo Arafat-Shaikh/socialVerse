@@ -100,9 +100,10 @@ const UserHeader = ({ user }) => {
         <Box>
           <Avatar
             name={user.username}
-            src={
-              user.profilePic ? user.profilePic : "https://bit.ly/broken-link"
-            }
+            // src={
+            //   user.profilePic ? user.profilePic : "https://bit.ly/broken-link"
+            // }
+            src={user.profilePic && user.profilePic}
             size={{
               base: "md",
               md: "xl",
@@ -128,7 +129,7 @@ const UserHeader = ({ user }) => {
         <Flex gap={2} alignItems={"center"}>
           <Text>{user.followers.length} followers</Text>
           <Box w={1} h={1} bg={"gray.light"} borderRadius={"full"}></Box>
-          <Link>instagram.com</Link>
+          <Link>{user.following.length} following</Link>
         </Flex>
         <Flex gap={4}>
           <Box className="icon-container">
@@ -158,7 +159,7 @@ const UserHeader = ({ user }) => {
           pb={3}
           cursor={"pointer"}
         >
-          <Text fontWeight={"bold"}>Threads</Text>
+          <Text fontWeight={"bold"}>Posts</Text>
         </Flex>
         <Flex
           flex={1}

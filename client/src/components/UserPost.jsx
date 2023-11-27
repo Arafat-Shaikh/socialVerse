@@ -1,25 +1,23 @@
 import { Avatar, Box, Flex, Image, Text, useToast } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { BsThreeDots } from "react-icons/bs";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Actions from "./Actions";
 import { formatDistanceToNow } from "date-fns";
 import { DeleteIcon } from "@chakra-ui/icons";
 import useHandleDeletePost from "../hooks/useHandleDeletePost";
+import useFormatDate from "../hooks/useFormatDate";
+import { useRecoilState } from "recoil";
+import userAtom from "../atoms/userAtom";
+import postsAtom from "../atoms/postsAtom";
 
-const UserPost = ({ post, setPosts }) => {
-  const [isLiked, setLiked] = useState(false);
+const UserPost = ({ post }) => {
   const [user, setUser] = useState("");
   const navigate = useNavigate();
   const toast = useToast();
-  const { loading, handleDeletePost, isDeleted } = useHandleDeletePost();
-  let formattedDate = formatDistanceToNow(new Date(post.createdAt))
-    .split(" ")
-    .filter((word) => word !== "about");
-
-  formattedDate = formattedDate[0] + formattedDate[1][0];
-
-  console.log(formattedDate);
+  const { handleDeletePost, loading, isDeleted } = useHandleDeletePost();
+  const { formatDate } = useFormatDate();
+  const [loggedInUser, setLoggedInUser] = useRecoilState(userAtom);
+  const [posts, setPosts] = useRecoilState(postsAtom);
 
   useEffect(() => {
     async function getUserProfile() {
@@ -43,7 +41,7 @@ const UserPost = ({ post, setPosts }) => {
     if (post) {
       getUserProfile();
     }
-  }, [post]);
+  }, [post, isDeleted, posts]);
 
   console.log(post);
   if (!post) {
@@ -53,9 +51,9 @@ const UserPost = ({ post, setPosts }) => {
   return (
     <Link to={`/${user.username}/post/${post.id}`}>
       <Flex gap={3} mb={4} py={5}>
-        <Flex flexDirection={"column"} alignItems={"center"}>
+        <Flex flexDirection={"column"} alignItems={"center"} minW={12}>
           <Avatar
-            size={"md"}
+            size={{ base: "sm", md: "md" }}
             name={user.username}
             src={user.profilePic}
             onClick={(e) => {
@@ -63,23 +61,25 @@ const UserPost = ({ post, setPosts }) => {
               navigate(`/${user.username}`);
             }}
           />
-          <Box w={0.5} h={"full"} bg={"gray.light"} my={2}></Box>
+          {post.replies.length ? (
+            <Box w={0.5} h={"full"} bg={"gray.light"} my={2}></Box>
+          ) : null}
           <Box position={"relative"} w={"full"}>
             {post.replies[0] && (
               <Avatar
                 size={"xs"}
-                name="john doe"
                 src={post.replies[0].userProfilePic}
                 position={"absolute"}
                 top={"0px"}
                 left={"15px"}
                 padding={"2px"}
+                name={post.replies[0].username}
               />
             )}
             {post.replies[1] && (
               <Avatar
                 size={"xs"}
-                name="john doe"
+                name={post.replies[1].username}
                 src={post.replies[1].userProfilePic}
                 position={"absolute"}
                 bottom={"0px"}
@@ -90,7 +90,7 @@ const UserPost = ({ post, setPosts }) => {
             {post.replies[2] && (
               <Avatar
                 size={"xs"}
-                name="john doe"
+                name={post.replies[2].username}
                 src={post.replies[2].userProfilePic}
                 position={"absolute"}
                 bottom={"0px"}
@@ -116,8 +116,13 @@ const UserPost = ({ post, setPosts }) => {
               <Image src="/verified.png" w={4} h={4} ml={1} />
             </Flex>
             <Flex alignItems={"center"} gap={4}>
-              <Text fontStyle={"sm"}>{formattedDate}</Text>
-              <DeleteIcon onClick={() => handleDeletePost(post.id)} />
+              <Text fontStyle={"sm"}>{formatDate(post.createdAt)}</Text>
+              {loggedInUser.id === post.postedBy && (
+                <DeleteIcon
+                  onClick={(e) => handleDeletePost(e, post.id)}
+                  boxSize={3}
+                />
+              )}
             </Flex>
           </Flex>
           <Text>{post.text}</Text>
@@ -133,7 +138,7 @@ const UserPost = ({ post, setPosts }) => {
           )}
 
           <Flex gap={3} my={1}>
-            <Actions post={post} setPosts={setPosts} />
+            <Actions post={post} />
           </Flex>
 
           <Flex alignItems={"center"} gap={2}>

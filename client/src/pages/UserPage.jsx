@@ -10,14 +10,12 @@ import postsAtom from "../atoms/postsAtom";
 
 const UserPage = () => {
   const toast = useToast();
-  // const [userPost, setUserPost] = useRecoilState(userAtom);
   const { username } = useParams();
   const { user, loading } = useGetUserProfile();
   const [userPosts, setUserPosts] = useRecoilState(postsAtom);
   const [loggedInUser, setLoggedInUser] = useRecoilState(userAtom);
 
-  console.log(loading);
-  console.log(user);
+  console.log(userPosts);
 
   async function fetchUserPosts() {
     console.log(username);

@@ -2,7 +2,6 @@ import {
   Button,
   Flex,
   FormControl,
-  FormLabel,
   Input,
   Modal,
   ModalBody,
@@ -90,7 +89,7 @@ const Actions = ({ post }) => {
     setLoading(true);
 
     try {
-      const response = await fetch("api/post/reply/" + post.id, {
+      const response = await fetch("/api/post/reply/" + post.id, {
         method: "PUT",
         body: JSON.stringify({ text: reply }),
         headers: { "content-type": "application/json" },
@@ -105,12 +104,15 @@ const Actions = ({ post }) => {
           isClosable: true,
         });
       } else {
+        console.log(data);
         const updatedPosts = posts.map((p) => {
-          if (post.id === data.id) {
+          if (p.id === post.id) {
             return data;
+          } else {
+            return p;
           }
-          return p;
         });
+        console.log(updatedPosts);
         setPosts(updatedPosts);
       }
     } catch (error) {
@@ -123,7 +125,12 @@ const Actions = ({ post }) => {
 
   return (
     <>
-      <Flex gap={3} my={2} onClick={(e) => e.preventDefault()}>
+      <Flex
+        gap={3}
+        my={2}
+        onClick={(e) => e.preventDefault()}
+        cursor={"pointer"}
+      >
         <svg
           aria-label="Like"
           color={isLiked ? "rgb(237,73,86)" : ""}

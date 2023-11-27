@@ -2,11 +2,16 @@ const { default: mongoose } = require("mongoose");
 const { User } = require("../models/users");
 const { generateTokenAndCookie } = require("../services/service");
 const bcrypt = require("bcrypt");
+const { Post } = require("../models/posts");
 const cloudinary = require("cloudinary").v2;
 
 exports.signupUser = async (req, res) => {
   try {
     const { email, password, username, name } = req.body;
+    console.log(email);
+    console.log(password);
+    console.log(username);
+    console.log(name);
     console.log(typeof password);
     const user = await User.findOne({ $or: [{ email }, { password }] });
     if (user) {
@@ -107,6 +112,22 @@ exports.updateProfile = async (req, res) => {
       }
     }
 
+    const posts = await Post.find();
+
+    posts.forEach(async (p) => {
+      const post = await Post.findById(p.id);
+      if (post.replies) {
+        post.replies.forEach((r) => {
+          if (r.userId.toString() === req.user.id) {
+            r.username = username;
+            if (profilePic) r.userProfilePic = user.profilePic;
+          }
+        });
+      }
+
+      await post.save();
+    });
+
     user.name = name;
     user.username = username;
     user.email = email;
@@ -115,7 +136,6 @@ exports.updateProfile = async (req, res) => {
     await user.save();
 
     user.password = null;
-    console.log(user);
     res.status(200).json(user);
   } catch (err) {
     console.log("update profile " + err);
@@ -140,7 +160,7 @@ exports.followAndUnFollow = async (req, res) => {
       await User.findByIdAndUpdate(currentUser.id, {
         $pull: { following: id },
       });
-      res.status(201).json({ message: "unFollowed Successfully" });
+      res.status(201).json({ message: "Unfollowed successfully" });
     } else {
       await User.findByIdAndUpdate(id, {
         $push: { followers: currentUser.id },
@@ -148,7 +168,7 @@ exports.followAndUnFollow = async (req, res) => {
       await User.findByIdAndUpdate(currentUser.id, {
         $push: { following: id },
       });
-      res.status(201).json({ message: "Followed Successfully" });
+      res.status(201).json({ message: "Followed successfully" });
     }
   } catch (err) {
     console.log("followAndUnfollow " + err.message);
@@ -185,5 +205,27 @@ exports.getUserProfile = async (req, res) => {
   } catch (err) {
     console.log(err.message);
     res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getSuggestedUsers = async (req, res) => {
+  try {
+    if (!req.user.id) {
+      return res.status(500).json({ error: "user not found" });
+    }
+
+    const users = await User.find({});
+
+    const suggestedUsers = users
+      .filter((u) => !u.followers.includes(req.user.id))
+      .filter((u) => u.id !== req.user.id);
+
+    if (!suggestedUsers) {
+      return res.status(200).json({ message: "no suggested users" });
+    }
+
+    res.status(201).json(suggestedUsers);
+  } catch (err) {
+    console.log("error in suggestedUsers " + err.message);
   }
 };

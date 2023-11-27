@@ -20,7 +20,6 @@ import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { useSetRecoilState } from "recoil";
 import authState from "../atoms/authAtom";
 import userAtom from "../atoms/userAtom";
-import { Navigate } from "react-router-dom";
 
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
@@ -97,8 +96,8 @@ export default function SignUp() {
                   </FormControl>
                 </Box>
                 <Box>
-                  <FormControl>
-                    <FormLabel isRequired>Username</FormLabel>
+                  <FormControl isRequired>
+                    <FormLabel>Username</FormLabel>
                     <Input
                       type="text"
                       onChange={(e) =>
@@ -112,13 +111,13 @@ export default function SignUp() {
                 <FormLabel>Email address</FormLabel>
                 <Input
                   type="email"
-                  onClick={(e) =>
+                  onChange={(e) =>
                     setInputs({ ...inputs, email: e.target.value })
                   }
                 />
               </FormControl>
               <FormControl isRequired>
-                <FormLabel isRequired>Password</FormLabel>
+                <FormLabel>Password</FormLabel>
                 <InputGroup>
                   <Input
                     type={showPassword ? "text" : "password"}
@@ -140,7 +139,6 @@ export default function SignUp() {
               </FormControl>
               <Stack spacing={10} pt={2}>
                 <Button
-                  loadingText="Submitting"
                   size="lg"
                   bg={"gray.600"}
                   color={"white"}
@@ -148,6 +146,7 @@ export default function SignUp() {
                     bg: "gray.700",
                   }}
                   onClick={handleSignUp}
+                  isLoading={loading}
                 >
                   Sign up
                 </Button>

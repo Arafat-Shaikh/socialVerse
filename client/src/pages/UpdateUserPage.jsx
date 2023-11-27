@@ -18,11 +18,13 @@ import { SmallCloseIcon } from "@chakra-ui/icons";
 import { useRef, useState } from "react";
 import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
+import { useNavigate } from "react-router-dom";
 
 export default function UpdateUserPage() {
   const [user, setUser] = useRecoilState(userAtom);
   const [imgPreview, setImgPreview] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const [inputs, setInputs] = useState({
     name: user.name,
     username: user.username,
@@ -50,8 +52,10 @@ export default function UpdateUserPage() {
 
   async function handleUpdate(e) {
     e.preventDefault();
+
     if (loading) return;
     setLoading(true);
+
     try {
       const res = await fetch("api/user/update", {
         method: "PATCH",
@@ -75,6 +79,7 @@ export default function UpdateUserPage() {
           status: "success",
           isClosable: true,
         });
+        navigate(`/${data.username}`);
       }
     } catch (error) {
       console.log(error);
