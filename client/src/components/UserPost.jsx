@@ -9,6 +9,8 @@ import useFormatDate from "../hooks/useFormatDate";
 import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import postsAtom from "../atoms/postsAtom";
+import { color } from "framer-motion";
+import { bg } from "date-fns/locale";
 
 const UserPost = ({ post }) => {
   const [user, setUser] = useState("");
@@ -30,7 +32,6 @@ const UserPost = ({ post }) => {
           console.log(data.error);
         } else {
           console.log(data);
-
           setUser(data);
         }
       } catch (error) {
@@ -50,7 +51,15 @@ const UserPost = ({ post }) => {
 
   return (
     <Link to={`/${user.username}/post/${post.id}`}>
-      <Flex gap={3} mb={4} py={5}>
+      <Flex
+        _hover={{ bg: "#010101" }}
+        gap={3}
+        py={5}
+        borderTop={"1px"}
+        borderColor={"gray.900"}
+        borderRadius={"md"}
+        p={8}
+      >
         <Flex flexDirection={"column"} alignItems={"center"} minW={12}>
           <Avatar
             size={{ base: "sm", md: "md" }}

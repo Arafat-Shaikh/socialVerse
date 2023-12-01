@@ -5,8 +5,10 @@ const useHandleImg = () => {
 
   function handleImgChange(e) {
     const file = e.target.files[0];
-    if (file.size >= 1048576) {
-      alert("file size exceeds");
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Not an image");
     } else {
       const reader = new FileReader();
       reader.onloadend = () => {

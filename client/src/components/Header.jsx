@@ -18,13 +18,18 @@ const Header = () => {
         </Link>
       )}
 
-      <Image
-        cursor={"pointer"}
-        alt="logo"
-        w={6}
-        src={colorMode === "dark" ? "/light-logo.svg" : "/dark-logo.svg"}
-        onClick={toggleColorMode}
-      />
+      {user && (
+        <Image
+          cursor={"pointer"}
+          alt="logo"
+          w={6}
+          bg={"white"}
+          src={colorMode === "dark" ? "/twitter-logo.svg" : "/twitter-logo.svg"}
+          // onClick={toggleColorMode}
+          borderRadius={"md"}
+          p={"2px"}
+        />
+      )}
 
       {user && (
         <Link to={"/" + user.username} replace={true}>

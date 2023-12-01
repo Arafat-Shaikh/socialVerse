@@ -28,12 +28,17 @@ export default function Login() {
     email: "",
     password: "",
   });
+
   const toast = useToast();
   const setUser = useSetRecoilState(userAtom);
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     if (loading) return;
+
+    if (!inputs.email || !inputs.password) {
+      return;
+    }
 
     setLoading(true);
     try {
@@ -72,7 +77,7 @@ export default function Login() {
         </Stack>
         <Box
           rounded={"lg"}
-          bg={useColorModeValue("white", "gray.dark")}
+          bg={useColorModeValue("white", "rgb(1, 1, 1)")}
           boxShadow={"lg"}
           p={8}
           w={{ base: "full", sm: "400px" }}
@@ -109,13 +114,14 @@ export default function Login() {
             <Stack spacing={10} pt={2}>
               <Button
                 size="lg"
-                bg={"gray.600"}
+                bg={"rgb(84, 85, 87)"}
                 color={"white"}
                 _hover={{
-                  bg: "gray.700",
+                  bg: "rgb(73, 71, 72)",
                 }}
                 onClick={handleLogin}
                 isLoading={loading}
+                borderRadius={"3xl"}
               >
                 Login
               </Button>

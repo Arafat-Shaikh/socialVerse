@@ -1,19 +1,21 @@
 const express = require("express");
 const app = express();
 const bcrypt = require("bcrypt");
-const { User } = require("./models/users");
 const userRouter = require("./routes/userRouter");
 const postRouter = require("./routes/postRouter");
 const { default: mongoose } = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cloudinary = require("cloudinary").v2;
+const path = require("path");
 
 require("dotenv").config();
+
+app.use(express.static(path.resolve(__dirname, "dist")));
 
 main().catch((err) => console.log(err));
 
 async function main() {
-  await mongoose.connect("mongodb://localhost:27017/threads");
+  await mongoose.connect(process.env.MONGO_URL);
   console.log("database connected");
 }
 
@@ -28,6 +30,10 @@ app.use(cookieParser());
 
 app.use("/api/user", userRouter.router);
 app.use("/api/post", postRouter.router);
+
+app.use("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "dist", "index.html"));
+});
 
 app.listen(8080, () => {
   console.log("server is started on port 8080");

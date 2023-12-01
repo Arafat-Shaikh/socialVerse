@@ -35,8 +35,6 @@ export default function SignUp() {
   const [loading, setLoading] = useState(false);
 
   const handleSignUp = async () => {
-    console.log(inputs);
-
     if (loading) return;
 
     setLoading(true);
@@ -78,7 +76,7 @@ export default function SignUp() {
           </Stack>
           <Box
             rounded={"lg"}
-            bg={useColorModeValue("white", "gray.dark")}
+            bg={useColorModeValue("white", "rgb(1,1,1)")}
             boxShadow={"lg"}
             p={8}
           >
@@ -140,13 +138,14 @@ export default function SignUp() {
               <Stack spacing={10} pt={2}>
                 <Button
                   size="lg"
-                  bg={"gray.600"}
+                  bg={"rgb(84, 85, 87)"}
                   color={"white"}
                   _hover={{
-                    bg: "gray.700",
+                    bg: "rgb(73, 71, 72)",
                   }}
                   onClick={handleSignUp}
                   isLoading={loading}
+                  borderRadius={"3xl"}
                 >
                   Sign up
                 </Button>

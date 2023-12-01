@@ -8,6 +8,7 @@ const Logout = () => {
   const toast = useToast();
   const [user, setUser] = useRecoilState(userAtom);
   async function handleLogout() {
+    if (!window.confirm("Press ok to logout")) return;
     try {
       const res = await fetch("/api/user/logout", {
         method: "POST",

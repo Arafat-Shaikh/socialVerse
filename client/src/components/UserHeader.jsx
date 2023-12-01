@@ -19,62 +19,44 @@ import { CgMoreO } from "react-icons/cg";
 import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { Link as RouterLink, useParams } from "react-router-dom";
+import useFollowUser from "../hooks/useFollowUser";
+import useFormatDate from "../hooks/useFormatDate";
+const months = [
+  "",
+  "Jan",
+  "Feb",
+  "Mar",
+  "April",
+  "May",
+  "June",
+  "July",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
-const UserHeader = ({ user }) => {
+const UserHeader = ({ user, handleChangePosts, isReplyPosts }) => {
   const toast = useToast();
   const toastIdRef = useRef();
   const [loggedInUser, setLoggedInUser] = useRecoilState(userAtom);
-  const [follow, setFollow] = useState(
-    user?.followers && user.followers.includes(loggedInUser.id)
-  );
-  const [loading, setLoading] = useState(false);
+  let joinDate = user.createdAt.split("-");
+  [joinDate[0], joinDate[1]] = [joinDate[1], joinDate[0]];
+  joinDate.pop();
+  console.log(joinDate);
+  // const [follow, setFollow] = useState(
+  //   user?.followers && user.followers.includes(loggedInUser.id)
+  // );
+  // const [loading, setLoading] = useState(false);
+  const { followUser, follow, loading } = useFollowUser();
 
-  console.log(follow);
+  console.log(loggedInUser);
 
   function copyUrl() {
     const url = window.location.href;
     navigator.clipboard.writeText(url);
     toastIdRef.current = toast({ description: "Copied" });
-  }
-
-  async function followUser() {
-    if (loading) return;
-
-    setLoading(true);
-
-    try {
-      const res = await fetch("api/user/follow/" + user.id, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-      });
-      const data = await res.json();
-
-      if (data.error) {
-        toast({
-          status: "error",
-          description: data.error,
-          isClosable: true,
-        });
-      }
-
-      if (follow) {
-        user.followers.pop();
-      } else {
-        user.followers.push(loggedInUser._id);
-      }
-
-      setFollow(!follow);
-
-      toast({
-        status: "success",
-        description: data.message,
-        isClosable: true,
-      });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
   }
 
   return (
@@ -100,9 +82,6 @@ const UserHeader = ({ user }) => {
         <Box>
           <Avatar
             name={user.username}
-            // src={
-            //   user.profilePic ? user.profilePic : "https://bit.ly/broken-link"
-            // }
             src={user.profilePic && user.profilePic}
             size={{
               base: "md",
@@ -111,25 +90,40 @@ const UserHeader = ({ user }) => {
           />
         </Box>
       </Flex>
-      <Text>{user.bio}</Text>
+      <Text fontSize={"sm"}>{user.bio}</Text>
 
       {loggedInUser?.id === user?.id && (
         <Link as={RouterLink} to="/update">
-          <Button size={"sm"}>Update Profile</Button>
+          <Button
+            size={"sm"}
+            borderRadius={"3xl"}
+            borderColor={"gray.500"}
+            borderWidth={"1px"}
+          >
+            Edit profile
+          </Button>
         </Link>
       )}
 
+      <Text fontSize={"sm"} color={"gray.500"} mb={"-14px"} mt={2}>
+        {"Joined " + months[joinDate[0]] + " " + joinDate[1]}
+      </Text>
+
       {loggedInUser?.id !== user?.id && (
-        <Button onClick={() => followUser()} isLoading={loading}>
+        <Button
+          onClick={() => followUser(user)}
+          isLoading={loading}
+          size={"sm"}
+        >
           {follow ? "Unfollow" : "Follow"}
         </Button>
       )}
 
       <Flex justifyContent={"space-between"} w={"full"}>
         <Flex gap={2} alignItems={"center"}>
-          <Text>{user.followers.length} followers</Text>
+          <Text color={"gray.300"}>{user.followers.length} followers</Text>
           <Box w={1} h={1} bg={"gray.light"} borderRadius={"full"}></Box>
-          <Link>{user.following.length} following</Link>
+          <Link color={"gray.300"}> {user.following.length} following</Link>
         </Flex>
         <Flex gap={4}>
           <Box className="icon-container">
@@ -153,19 +147,22 @@ const UserHeader = ({ user }) => {
       </Flex>
       <Flex w={"full"}>
         <Flex
+          onClick={() => handleChangePosts(false)}
           flex={1}
-          borderBottom={"1.5px solid white"}
+          borderBottom={!isReplyPosts && "1.5px solid white"}
           justifyContent={"center"}
           pb={3}
           cursor={"pointer"}
+          color={isReplyPosts && "gray.light"}
         >
           <Text fontWeight={"bold"}>Posts</Text>
         </Flex>
         <Flex
+          onClick={() => handleChangePosts(true)}
           flex={1}
-          borderBottom={"1.5px solid gray"}
+          borderBottom={isReplyPosts && "1.5px solid gray"}
           justifyContent={"center"}
-          color={"gray.light"}
+          color={!isReplyPosts && "gray.light"}
           pb={3}
           cursor={"pointer"}
         >

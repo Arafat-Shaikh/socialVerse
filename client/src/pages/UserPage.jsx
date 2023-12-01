@@ -14,10 +14,19 @@ const UserPage = () => {
   const { user, loading } = useGetUserProfile();
   const [userPosts, setUserPosts] = useRecoilState(postsAtom);
   const [loggedInUser, setLoggedInUser] = useRecoilState(userAtom);
+  const [isReplyPosts, setIsReplyPosts] = useState(false);
+  const [repLoading, setRepLoading] = useState(false);
 
   console.log(userPosts);
 
+  function handleChangePosts(val) {
+    setIsReplyPosts(val);
+  }
+
   async function fetchUserPosts() {
+    if (repLoading) return;
+
+    setRepLoading(true);
     console.log(username);
     try {
       const res = await fetch("api/post/user/" + username);
@@ -35,12 +44,43 @@ const UserPage = () => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setRepLoading(false);
+    }
+  }
+
+  async function fetchUserRepliedPosts() {
+    if (repLoading) return;
+
+    setRepLoading(true);
+
+    try {
+      const response = await fetch("/api/post/replied/" + username);
+      const data = await response.json();
+
+      if (data.error) {
+        toast({
+          status: "error",
+          description: data.error,
+          isClosable: true,
+        });
+      } else {
+        setUserPosts(data);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setRepLoading(false);
     }
   }
 
   useEffect(() => {
-    fetchUserPosts();
-  }, [user]);
+    if (!isReplyPosts) {
+      fetchUserPosts();
+    } else {
+      fetchUserRepliedPosts();
+    }
+  }, [user, isReplyPosts]);
 
   if (loading && !user) {
     return (
@@ -64,7 +104,19 @@ const UserPage = () => {
 
   return (
     <>
-      {user && <UserHeader user={user} />}
+      {user && (
+        <UserHeader
+          user={user}
+          handleChangePosts={handleChangePosts}
+          isReplyPosts={isReplyPosts}
+        />
+      )}
+
+      {repLoading && (
+        <Flex justifyContent={"center"} mt={10}>
+          <Spinner size={"xl"} />
+        </Flex>
+      )}
       {userPosts &&
         userPosts.map((userPost) => (
           <UserPost key={userPost.id} post={userPost} />

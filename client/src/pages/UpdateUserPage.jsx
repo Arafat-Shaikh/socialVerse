@@ -19,10 +19,11 @@ import { useRef, useState } from "react";
 import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { useNavigate } from "react-router-dom";
+import useHandleImg from "../hooks/useHandleImg";
 
 export default function UpdateUserPage() {
   const [user, setUser] = useRecoilState(userAtom);
-  const [imgPreview, setImgPreview] = useState("");
+  // const [imgPreview, setImgPreview] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [inputs, setInputs] = useState({
@@ -33,22 +34,9 @@ export default function UpdateUserPage() {
     profilePic: user.profilePic,
     password: "",
   });
-
   const fileRef = useRef(null);
   const toast = useToast();
-
-  function handleImgChange(e) {
-    const file = e.target.files[0];
-    if (file.size >= 1048576) {
-      alert("File size exceeds");
-    } else {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImgPreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  }
+  const { handleImgChange, imgPreview, setImgPreview } = useHandleImg();
 
   async function handleUpdate(e) {
     e.preventDefault();
@@ -99,10 +87,9 @@ export default function UpdateUserPage() {
         my={12}
       >
         <Heading lineHeight={1.1} fontSize={{ base: "2xl", sm: "3xl" }}>
-          User Profile Edit
+          Edit Profile
         </Heading>
         <FormControl id="userName">
-          <FormLabel>User Icon</FormLabel>
           <Stack direction={["column", "row"]} spacing={6}>
             <Center>
               <Avatar size="xl" src={imgPreview || user.profilePic}>
@@ -110,8 +97,13 @@ export default function UpdateUserPage() {
               </Avatar>
             </Center>
             <Center w="full">
-              <Button w="full" onClick={() => fileRef.current.click()}>
-                Change Icon
+              <Button
+                w="full"
+                onClick={() => fileRef.current.click()}
+                borderRadius={"3xl"}
+                borderWidth={"2px"}
+              >
+                Change profile
               </Button>
               <Input
                 type="file"
@@ -180,6 +172,7 @@ export default function UpdateUserPage() {
             _hover={{
               bg: "gray.700",
             }}
+            onClick={() => navigate(`/${user.username}`)}
           >
             Cancel
           </Button>

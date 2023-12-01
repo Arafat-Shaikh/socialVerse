@@ -61,6 +61,11 @@ exports.deletePost = async (req, res) => {
       return res.status(401).json({ error: "post not found" });
     }
 
+    if (post.img) {
+      const imgId = post.img.split("/").pop().split(".")[0];
+      await cloudinary.uploader.destroy(imgId);
+    }
+
     await Post.findByIdAndDelete(id);
     res.status(201).json({ message: "post deleted successfully" });
   } catch (err) {
@@ -160,5 +165,54 @@ exports.getUserPosts = async (req, res) => {
   } catch (err) {
     console.log("Error in getUserPost " + err.message);
     res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getUserRepliedPosts = async (req, res) => {
+  try {
+    const username = req.params.id;
+
+    const posts = await Post.find({
+      replies: {
+        $elemMatch: { username: username },
+      },
+    });
+
+    if (!posts) {
+      return res.status(201).json({ message: "Not yet replied" });
+    }
+
+    console.log(posts);
+    res.status(201).json(posts);
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getUserForYouPosts = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    const posts = await Post.find().sort({ createdAt: -1 });
+
+    if (!posts) {
+      return res.status(201).json({ message: "Posts not found" });
+    }
+
+    const filteredPosts = posts.filter(
+      (p) => !user.following.includes(p.postedBy)
+    );
+
+    const followedUsersPosts = posts.filter((p) =>
+      user.following.includes(p.postedBy)
+    );
+
+    followedUsersPosts.map((p) => filteredPosts.push(p));
+
+    res.status(201).json(filteredPosts);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error });
   }
 };

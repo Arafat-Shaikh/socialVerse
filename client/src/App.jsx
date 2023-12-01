@@ -30,7 +30,7 @@ function App() {
         ></Route>
         <Route
           path="/auth"
-          element={!user ? <AuthPage /> : <HomePage />}
+          element={!user ? <AuthPage /> : <Navigate to={"/"} />}
         ></Route>
         <Route
           path="/update"

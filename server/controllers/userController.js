@@ -3,19 +3,23 @@ const { User } = require("../models/users");
 const { generateTokenAndCookie } = require("../services/service");
 const bcrypt = require("bcrypt");
 const { Post } = require("../models/posts");
+const { json } = require("express");
 const cloudinary = require("cloudinary").v2;
 
 exports.signupUser = async (req, res) => {
   try {
     const { email, password, username, name } = req.body;
-    console.log(email);
-    console.log(password);
-    console.log(username);
-    console.log(name);
+
     console.log(typeof password);
     const user = await User.findOne({ $or: [{ email }, { password }] });
     if (user) {
       return res.status(404).json({ error: "User already exist" });
+    }
+
+    if (password.length < 6) {
+      return res
+        .status(401)
+        .json({ error: "password should greater than 6 digits" });
     }
 
     const salt = await bcrypt.genSalt(10);

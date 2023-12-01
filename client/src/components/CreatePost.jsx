@@ -1,5 +1,6 @@
 import { AddIcon } from "@chakra-ui/icons";
 import {
+  Avatar,
   Button,
   CloseButton,
   Flex,
@@ -25,7 +26,8 @@ import useHandleImg from "../hooks/useHandleImg";
 import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import postsAtom from "../atoms/postsAtom";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
+import useGetUserProfile from "../hooks/useGetUserProfile";
 
 const CreatePost = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -34,13 +36,14 @@ const CreatePost = () => {
   const { handleImgChange, imgPreview, setImgPreview } = useHandleImg();
   const CHAR_LIMIT = 400;
   const [charLeft, setCharLeft] = useState(CHAR_LIMIT);
-  const [user, setUser] = useRecoilState(userAtom);
+  const [currentUser, setCurrentUser] = useRecoilState(userAtom);
   const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [posts, setPosts] = useRecoilState(postsAtom);
-  const { username } = useParams();
+  const location = useLocation();
+  const [user, setUser] = useRecoilState(userAtom);
 
-  console.log(user);
+  console.log(location);
 
   function handlePostText(e) {
     const text = e.target.value;
@@ -59,13 +62,22 @@ const CreatePost = () => {
   async function handlePost() {
     if (loading) return;
 
+    if (!postText) {
+      toast({
+        status: "error",
+        description: "Text is empty",
+        isClosable: true,
+      });
+      return;
+    }
+
     setLoading(true);
     let postInfo;
 
     if (imgPreview) {
-      postInfo = { postedBy: user.id, img: imgPreview, text: postText };
+      postInfo = { postedBy: currentUser.id, img: imgPreview, text: postText };
     } else {
-      postInfo = { postedBy: user.id, text: postText };
+      postInfo = { postedBy: currentUser.id, text: postText };
     }
 
     try {
@@ -84,10 +96,12 @@ const CreatePost = () => {
           isClosable: true,
         });
       } else {
-        if (username === user.username) {
+        let path = location.pathname.split("");
+        delete path[0];
+
+        if (path.join("") === currentUser.username) {
           setPosts([data, ...posts]);
         }
-
         setLoading(false);
         onClose();
         toast({
@@ -100,6 +114,9 @@ const CreatePost = () => {
       console.log(data);
     } catch (error) {
       console.log(error);
+    } finally {
+      setImgPreview("");
+      setPostText("");
     }
   }
 
@@ -110,21 +127,25 @@ const CreatePost = () => {
         bottom={10}
         right={10}
         leftIcon={<AddIcon />}
-        bg={useColorModeValue("gray.300", "gray.dark")}
+        bg={useColorModeValue("black", "white")}
         paddingRight={2}
         onClick={onOpen}
+        color={"black"}
       ></Button>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Create Post</ModalHeader>
+        <ModalContent bg={"gray.dark"}>
+          <ModalHeader>
+            <Avatar src={user.profilePic} size={"sm"} />
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <FormControl>
               <Textarea
-                placeholder="Post content goes here"
+                placeholder="What's happening?"
                 value={postText}
                 onChange={handlePostText}
+                focusBorderColor="gray.700"
               />
               <Text
                 fontSize={"xs"}
@@ -163,10 +184,15 @@ const CreatePost = () => {
 
           <ModalFooter>
             <Button
-              colorScheme="blue"
               mr={3}
               onClick={handlePost}
               isLoading={loading}
+              borderRadius={"3xl"}
+              bg={"yellow.600"}
+              color={"white"}
+              _hover={{
+                bg: "yellow.700",
+              }}
             >
               Post
             </Button>
