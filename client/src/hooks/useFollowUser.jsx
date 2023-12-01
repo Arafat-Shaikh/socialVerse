@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
-import { useToast } from "@chakra-ui/react";
+import useToastHook from "./useToastHook";
 
 const useFollowUser = () => {
   const [loading, setLoading] = useState(false);
   const [loggedInUser, setLoggedInUser] = useRecoilState(userAtom);
   const [follow, setFollow] = useState(null);
-  const toast = useToast();
+  const { showToast } = useToastHook();
 
   async function followUser(user) {
     setFollow(user?.followers.includes(loggedInUser.id));
@@ -24,11 +24,7 @@ const useFollowUser = () => {
       const data = await res.json();
 
       if (data.error) {
-        toast({
-          status: "error",
-          description: data.error,
-          isClosable: true,
-        });
+        showToast("error", data.error, true);
       }
 
       if (follow) {
@@ -39,11 +35,7 @@ const useFollowUser = () => {
 
       setFollow(!follow);
 
-      toast({
-        status: "success",
-        description: data.message,
-        isClosable: true,
-      });
+      showToast("success", data.message, true);
     } catch (error) {
       console.log(error);
     } finally {

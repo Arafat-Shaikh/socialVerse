@@ -12,7 +12,6 @@ import {
   AvatarBadge,
   IconButton,
   Center,
-  useToast,
 } from "@chakra-ui/react";
 import { SmallCloseIcon } from "@chakra-ui/icons";
 import { useRef, useState } from "react";
@@ -20,10 +19,10 @@ import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { useNavigate } from "react-router-dom";
 import useHandleImg from "../hooks/useHandleImg";
+import useToastHook from "../hooks/useToastHook";
 
 export default function UpdateUserPage() {
   const [user, setUser] = useRecoilState(userAtom);
-  // const [imgPreview, setImgPreview] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [inputs, setInputs] = useState({
@@ -35,7 +34,7 @@ export default function UpdateUserPage() {
     password: "",
   });
   const fileRef = useRef(null);
-  const toast = useToast();
+  const { showToast } = useToastHook();
   const { handleImgChange, imgPreview, setImgPreview } = useHandleImg();
 
   async function handleUpdate(e) {
@@ -53,20 +52,14 @@ export default function UpdateUserPage() {
       const data = await res.json();
       console.log(data);
       if (data.error) {
-        toast({
-          title: `${data.error}`,
-          status: "error",
-          isClosable: true,
-        });
+        showToast("error", data.error, true);
       } else {
         localStorage.setItem("user-d", JSON.stringify(data));
         setUser(data);
         console.log(data);
-        toast({
-          title: `${"Profile updated successfully"}`,
-          status: "success",
-          isClosable: true,
-        });
+
+        showToast("success", "Profile updated successfully", true);
+
         navigate(`/${data.username}`);
       }
     } catch (error) {

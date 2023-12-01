@@ -18,7 +18,6 @@ import {
   Textarea,
   useColorModeValue,
   useDisclosure,
-  useToast,
 } from "@chakra-ui/react";
 import React, { useRef, useState } from "react";
 import { BsFillImageFill } from "react-icons/bs";
@@ -26,8 +25,8 @@ import useHandleImg from "../hooks/useHandleImg";
 import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import postsAtom from "../atoms/postsAtom";
-import { useLocation, useParams } from "react-router-dom";
-import useGetUserProfile from "../hooks/useGetUserProfile";
+import { useLocation } from "react-router-dom";
+import useToastHook from "../hooks/useToastHook";
 
 const CreatePost = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -37,11 +36,11 @@ const CreatePost = () => {
   const CHAR_LIMIT = 400;
   const [charLeft, setCharLeft] = useState(CHAR_LIMIT);
   const [currentUser, setCurrentUser] = useRecoilState(userAtom);
-  const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [posts, setPosts] = useRecoilState(postsAtom);
   const location = useLocation();
   const [user, setUser] = useRecoilState(userAtom);
+  const { showToast } = useToastHook();
 
   console.log(location);
 
@@ -63,11 +62,7 @@ const CreatePost = () => {
     if (loading) return;
 
     if (!postText) {
-      toast({
-        status: "error",
-        description: "Text is empty",
-        isClosable: true,
-      });
+      showToast("error", "Text is empty", true);
       return;
     }
 
@@ -90,11 +85,7 @@ const CreatePost = () => {
       const data = await res.json();
 
       if (data.error) {
-        toast({
-          status: "error",
-          description: data.error,
-          isClosable: true,
-        });
+        showToast("error", data.error, true);
       } else {
         let path = location.pathname.split("");
         delete path[0];
@@ -104,11 +95,8 @@ const CreatePost = () => {
         }
         setLoading(false);
         onClose();
-        toast({
-          status: "success",
-          description: "Post created",
-          isClosable: true,
-        });
+
+        showToast("success", "Post created", true);
       }
 
       console.log(data);

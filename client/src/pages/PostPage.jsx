@@ -7,7 +7,6 @@ import {
   Image,
   Spinner,
   Text,
-  useToast,
 } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import Actions from "../components/Actions";
@@ -20,11 +19,12 @@ import postsAtom from "../atoms/postsAtom";
 import { DeleteIcon } from "@chakra-ui/icons";
 import useHandleDeletePost from "../hooks/useHandleDeletePost";
 import userAtom from "../atoms/userAtom";
+import useToastHook from "../hooks/useToastHook";
 
 const PostPage = () => {
   const { pid, username } = useParams();
   const { user, loading } = useGetUserProfile();
-  const toast = useToast();
+  const { showToast } = useToastHook();
   const [posts, setPosts] = useRecoilState(postsAtom);
   const [post, setPost] = useState("");
   const { formatDate } = useFormatDate();
@@ -41,11 +41,7 @@ const PostPage = () => {
         const data = await response.json();
 
         if (data.error) {
-          toast({
-            status: "error",
-            description: data.error,
-            isClosable: true,
-          });
+          showToast("error", data.error, true);
         } else {
           console.log(data);
           setPost(data);

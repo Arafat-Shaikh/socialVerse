@@ -1,21 +1,17 @@
-import { Avatar, Box, Flex, Image, Text, useToast } from "@chakra-ui/react";
+import { Avatar, Box, Flex, Image, Text } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Actions from "./Actions";
-import { formatDistanceToNow } from "date-fns";
 import { DeleteIcon } from "@chakra-ui/icons";
 import useHandleDeletePost from "../hooks/useHandleDeletePost";
 import useFormatDate from "../hooks/useFormatDate";
 import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import postsAtom from "../atoms/postsAtom";
-import { color } from "framer-motion";
-import { bg } from "date-fns/locale";
 
 const UserPost = ({ post }) => {
   const [user, setUser] = useState("");
   const navigate = useNavigate();
-  const toast = useToast();
   const { handleDeletePost, loading, isDeleted } = useHandleDeletePost();
   const { formatDate } = useFormatDate();
   const [loggedInUser, setLoggedInUser] = useRecoilState(userAtom);

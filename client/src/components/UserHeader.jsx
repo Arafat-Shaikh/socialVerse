@@ -21,6 +21,7 @@ import userAtom from "../atoms/userAtom";
 import { Link as RouterLink, useParams } from "react-router-dom";
 import useFollowUser from "../hooks/useFollowUser";
 import useFormatDate from "../hooks/useFormatDate";
+
 const months = [
   "",
   "Jan",
@@ -45,10 +46,7 @@ const UserHeader = ({ user, handleChangePosts, isReplyPosts }) => {
   [joinDate[0], joinDate[1]] = [joinDate[1], joinDate[0]];
   joinDate.pop();
   console.log(joinDate);
-  // const [follow, setFollow] = useState(
-  //   user?.followers && user.followers.includes(loggedInUser.id)
-  // );
-  // const [loading, setLoading] = useState(false);
+
   const { followUser, follow, loading } = useFollowUser();
 
   console.log(loggedInUser);
@@ -56,7 +54,11 @@ const UserHeader = ({ user, handleChangePosts, isReplyPosts }) => {
   function copyUrl() {
     const url = window.location.href;
     navigator.clipboard.writeText(url);
-    toastIdRef.current = toast({ description: "Copied" });
+    toastIdRef.current = toast({
+      status: "info",
+      description: "Copied",
+      isClosable: true,
+    });
   }
 
   return (

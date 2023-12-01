@@ -1,10 +1,10 @@
-import { useToast } from "@chakra-ui/react";
 import { useState } from "react";
 import postsAtom from "../atoms/postsAtom";
 import { useRecoilState } from "recoil";
+import useToastHook from "./useToastHook";
 
 const useHandleDeletePost = () => {
-  const toast = useToast();
+  const { showToast } = useToastHook();
   const [isDeleted, setIsDeleted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [posts, setPosts] = useRecoilState(postsAtom);
@@ -25,18 +25,10 @@ const useHandleDeletePost = () => {
       const data = await response.json();
 
       if (data.error) {
-        toast({
-          status: "error",
-          description: "failed to Delete post",
-          isClosable: true,
-        });
+        showToast("error", "failed to Delete post", true);
         setIsDeleted(false);
       } else {
-        toast({
-          status: "success",
-          description: "Post deleted",
-          isClosable: true,
-        });
+        showToast("success", "Post deleted", true);
 
         const updatedPosts = posts.filter((p) => p.id !== postId);
         setPosts(updatedPosts);

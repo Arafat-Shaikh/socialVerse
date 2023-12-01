@@ -1,12 +1,4 @@
-import {
-  Avatar,
-  Box,
-  Button,
-  Flex,
-  Spinner,
-  Text,
-  useToast,
-} from "@chakra-ui/react";
+import { Avatar, Box, Button, Flex, Spinner, Text } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
@@ -14,13 +6,14 @@ import userAtom from "../atoms/userAtom";
 import UserPost from "../components/UserPost";
 import postsAtom from "../atoms/postsAtom";
 import SuggestedUsers from "../components/SuggestedUsers";
+import useToastHook from "../hooks/useToastHook";
 
 const HomePage = () => {
   const [user, setUser] = useRecoilState(userAtom);
   const [loading, setLoading] = useState(true);
   const [posts, setPosts] = useRecoilState(postsAtom);
   const navigate = useNavigate();
-  const toast = useToast();
+  const { showToast } = useToastHook();
   const [forYouPosts, setForYouPosts] = useState(false);
 
   async function getFollowedUserPosts() {
@@ -51,11 +44,7 @@ const HomePage = () => {
       const data = await response.json();
 
       if (data.error) {
-        toast({
-          status: "error",
-          description: data.error,
-          isClosable: true,
-        });
+        showToast("error", data.error, true);
       } else {
         setPosts(data);
       }
@@ -127,7 +116,7 @@ const HomePage = () => {
       </Box>
       <Box flex={30} display={{ base: "none", md: "block" }}>
         <Text mb={6} fontWeight={"bold"}>
-          Suggestions for you
+          You may like
         </Text>
         <Flex
           direction={"column"}

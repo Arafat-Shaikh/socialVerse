@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Button,
   Flex,
   FormControl,
@@ -10,16 +11,16 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
+  Textarea,
   useDisclosure,
-  useToast,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import postsAtom from "../atoms/postsAtom";
+import useToastHook from "../hooks/useToastHook";
 
 const Actions = ({ post }) => {
-  const toast = useToast();
   const [loggedInUser, setLoggedInUser] = useRecoilState(userAtom);
   const [isLiked, setIsLiked] = useState(post.likes.includes(loggedInUser.id));
   const [posts, setPosts] = useRecoilState(postsAtom);
@@ -27,6 +28,8 @@ const Actions = ({ post }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [reply, setReply] = useState("");
   const [loading, setLoading] = useState(false);
+  const { showToast } = useToastHook();
+  const [user, setUser] = useRecoilState(userAtom);
 
   const handleLikeAndUnlike = async () => {
     if (liking) return null;
@@ -42,11 +45,7 @@ const Actions = ({ post }) => {
       const data = await response.json();
 
       if (data.error) {
-        toast({
-          status: "error",
-          description: data.error,
-          isClosable: true,
-        });
+        showToast("error", data.error, true);
       } else {
         console.log(data);
 
@@ -98,11 +97,7 @@ const Actions = ({ post }) => {
       const data = await response.json();
 
       if (data.error) {
-        toast({
-          status: "success",
-          description: data.error,
-          isClosable: true,
-        });
+        showToast("error", data.error, true);
       } else {
         console.log(data);
         const updatedPosts = posts.map((p) => {
@@ -169,12 +164,14 @@ const Actions = ({ post }) => {
       </Flex>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader></ModalHeader>
+        <ModalContent bg={"gray.dark"}>
+          <ModalHeader>
+            <Avatar src={user.profilePic} size={"md"} />
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <FormControl mt={4}>
-              <Input
+              <Textarea
                 placeholder="Reply to post"
                 onChange={(e) => setReply(e.target.value)}
               />
@@ -183,10 +180,14 @@ const Actions = ({ post }) => {
 
           <ModalFooter>
             <Button
-              colorScheme="blue"
               mr={3}
               onClick={handleReplyToPost}
               isLoading={loading}
+              borderRadius={"3xl"}
+              bg={"yellow.700"}
+              _hover={{ bg: "yellow.800" }}
+              size={"sm"}
+              pb={"2px"}
             >
               reply
             </Button>

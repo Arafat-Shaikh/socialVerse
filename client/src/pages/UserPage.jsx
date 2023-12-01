@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
 import UserHeader from "../components/UserHeader";
 import UserPost from "../components/UserPost";
-import { Flex, Spinner, useToast } from "@chakra-ui/react";
+import { Flex, Spinner } from "@chakra-ui/react";
 import { useRecoilState } from "recoil";
 import userAtom from "../atoms/userAtom";
 import { Navigate, useParams } from "react-router-dom";
 import useGetUserProfile from "../hooks/useGetUserProfile";
 import postsAtom from "../atoms/postsAtom";
+import useToastHook from "../hooks/useToastHook";
 
 const UserPage = () => {
-  const toast = useToast();
+  const { showToast } = useToastHook();
   const { username } = useParams();
   const { user, loading } = useGetUserProfile();
   const [userPosts, setUserPosts] = useRecoilState(postsAtom);
@@ -33,11 +34,7 @@ const UserPage = () => {
       const data = await res.json();
 
       if (data.error) {
-        toast({
-          title: data.error,
-          status: "error",
-          isClosable: true,
-        });
+        showToast("error", data.error, true);
       } else {
         console.log(data);
         setUserPosts(data);
@@ -59,11 +56,7 @@ const UserPage = () => {
       const data = await response.json();
 
       if (data.error) {
-        toast({
-          status: "error",
-          description: data.error,
-          isClosable: true,
-        });
+        showToast("error", data.error, true);
       } else {
         setUserPosts(data);
       }
